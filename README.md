@@ -4,7 +4,7 @@ An MCP (Model Context Protocol) server for HashiCorp Boundary. Exposes Boundary 
 
 ## Demo
 
-https://github.com/learhy/boundary-mcp/raw/main/assets/demo.mp4
+assets/demo.mp4
 
 ## Overview
 
