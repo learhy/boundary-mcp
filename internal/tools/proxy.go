@@ -79,19 +79,20 @@ func SessionProxyTools(c *bclient.Client, pm *ProxyManager) []*mcp.ToolRegistrat
 				}
 
 				// Parse and return structured result
+				// Boundary API returns authz fields at the top level, not nested in item
 				var authzResp struct {
-					Item struct {
-						AuthorizationToken string `json:"authorization_token"`
-						SessionID          string `json:"session_id"`
-						TargetID           string `json:"target_id"`
-						HostID             string `json:"host_id"`
-						ExpirationTime     string `json:"expiration_time"`
-						ConnectionLimit    int    `json:"connection_limit"`
-						MinConnections     int    `json:"min_connections"`
-					} `json:"item"`
+					AuthorizationToken string `json:"authorization_token"`
+					SessionID          string `json:"session_id"`
+					TargetID           string `json:"target_id"`
+					HostID             string `json:"host_id"`
+					HostSetID          string `json:"host_set_id"`
+					ExpirationTime     string `json:"expiration_time"`
+					ConnectionLimit    int    `json:"connection_limit"`
+					Type               string `json:"type"`
+					UserID             string `json:"user_id"`
 				}
-				if json.Unmarshal(body, &authzResp) == nil && authzResp.Item.AuthorizationToken != "" {
-					out, _ := json.MarshalIndent(authzResp.Item, "", "  ")
+				if json.Unmarshal(body, &authzResp) == nil && authzResp.AuthorizationToken != "" {
+					out, _ := json.MarshalIndent(authzResp, "", "  ")
 					return mcp.TextResult(string(out)), nil
 				}
 
