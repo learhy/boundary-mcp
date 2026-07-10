@@ -1,0 +1,15 @@
+# Binaries
+boundary-mcp
+*.exe
+
+# Build artifacts
+/dist/
+/bin/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+*.swp
