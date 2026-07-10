@@ -45,6 +45,163 @@ docker run -i --rm \
   boundary-mcp:latest
 ```
 
+## Getting Your Boundary Token
+
+The MCP server requires a pre-authenticated Boundary token (`BOUNDARY_TOKEN`). Tokens expire, so you need to retrieve one and keep it current. Here are the methods:
+
+### Option A: Boundary CLI (password auth)
+
+If your Boundary cluster uses password authentication:
+
+```bash
+# Authenticate and get a token
+BOUNDARY_ADDR=https://boundary.example.com:9200 \
+  boundary authenticate password \
+  -auth-method-id ampw_1234567890 \
+  -login-name your.username \
+  -password env://BOUNDARY_PASSWORD \
+  -keyring-type none
+
+# The output includes a line like:
+#   The token is: at_abc123...
+#
+# Copy the token value (starts with "at_") and set it as BOUNDARY_TOKEN
+export BOUNDARY_TOKEN=at_abc123...
+```
+
+### Option B: API call (no CLI needed)
+
+```bash
+# Authenticate via the REST API
+curl -s -X POST \
+  https://boundary.example.com:9200/v1/auth-methods/ampw_1234567890:authenticate \
+  -H "Content-Type: application/json" \
+  -d '{"attributes":{"login_name":"your.username","password":"yourpassword"}}' \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['attributes']['token'])"
+
+# Output: at_abc123...
+# Set it as your token:
+export BOUNDARY_TOKEN=at_abc123...
+```
+
+### Option C: Use an existing token from your environment
+
+If you're already authenticated to Boundary (e.g., via the CLI or a previous session):
+
+```bash
+# Check if you have a token in the environment
+echo $BOUNDARY_TOKEN
+
+# Or read it from the Boundary CLI cache (if keyring is enabled)
+boundary config get token 2>/dev/null
+```
+
+### Token expiration
+
+User tokens typically expire after 7 days (configurable by your Boundary admin). App tokens (`apt_...`) can have custom expiration times. When the token expires:
+
+1. Tool calls will return: `"Authentication failed. Please configure a valid BOUNDARY_TOKEN."`
+2. Re-authenticate using one of the methods above
+3. Update the `BOUNDARY_TOKEN` value in your MCP client config (see below)
+4. Restart the MCP server (close and reopen the chat window, or reload the MCP config)
+
+### Keeping your token fresh in VS Code
+
+In `.vscode/mcp.json`, update the `BOUNDARY_TOKEN` value and reload the window:
+
+```json
+{
+  "servers": {
+    "boundary": {
+      "command": "boundary-mcp",
+      "env": {
+        "BOUNDARY_ADDR": "https://boundary.example.com:9200",
+        "BOUNDARY_TOKEN": "at_NEW_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+Then: `Ctrl+Shift+P` -> "Developer: Reload Window"
+
+### Keeping your token fresh in Claude Desktop
+
+In `claude_desktop_config.json` (macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "boundary": {
+      "command": "boundary-mcp",
+      "env": {
+        "BOUNDARY_ADDR": "https://boundary.example.com:9200",
+        "BOUNDARY_TOKEN": "at_NEW_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+Then: quit and restart Claude Desktop.
+
+### Keeping your token fresh in Cursor
+
+In `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "boundary": {
+      "command": "boundary-mcp",
+      "env": {
+        "BOUNDARY_ADDR": "https://boundary.example.com:9200",
+        "BOUNDARY_TOKEN": "at_NEW_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+Then: restart Cursor or reload the MCP server from settings.
+
+### Auto-refresh script
+
+For convenience, save this as `refresh-boundary-token.sh` and run it when your token expires:
+
+```bash
+#!/bin/bash
+# Refreshes the Boundary token and prints the updated config snippet
+
+BOUNDARY_ADDR=${BOUNDARY_ADDR:-"https://boundary.example.com:9200"}
+AUTH_METHOD_ID=${AUTH_METHOD_ID:-"ampw_1234567890"}
+
+echo "Enter your Boundary username:"
+read -r USERNAME
+echo "Enter your Boundary password:"
+read -rs PASSWORD
+echo ""
+
+TOKEN=$(curl -s -X POST \
+  "$BOUNDARY_ADDR/v1/auth-methods/$AUTH_METHOD_ID:authenticate" \
+  -H "Content-Type: application/json" \
+  -d "{\"attributes\":{\"login_name\":\"$USERNAME\",\"password\":\"$PASSWORD\"}}" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['attributes']['token'])" 2>/dev/null)
+
+if [ -z "$TOKEN" ]; then
+  echo "ERROR: Failed to authenticate"
+  exit 1
+fi
+
+echo "New token: ${TOKEN:0:15}..."
+echo ""
+echo "Add this to your MCP config:"
+echo "  \"BOUNDARY_TOKEN\": \"$TOKEN\""
+echo ""
+echo "Or export it:"
+echo "  export BOUNDARY_TOKEN=$TOKEN"
+```
+
 ## Configuration
 
 All configuration is via environment variables:
