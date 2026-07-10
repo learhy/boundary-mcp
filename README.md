@@ -6,17 +6,6 @@ An MCP (Model Context Protocol) server for HashiCorp Boundary. Exposes Boundary 
 
 https://github.com/learhy/boundary-mcp/releases/download/full-demo/boundary-mcp-full-demo.mp4
 
-> **6-scenario demo** — A real AI agent (glm-5.2:cloud) uses boundary-mcp through Claude Code. No simulation: every tool call is real, including a live 403 PermissionDenied, the agent's diagnosis of the missing grant, and actual connections through the Boundary worker to SSH, PostgreSQL, and web targets.
->
-> 1. **Discover and connect** — check_connection, list_scopes, list_targets, read_target, authorize_session
-> 2. **Troubleshoot access** — "How can I access the postgres target?" → agent traces the permission chain, finds the missing grant
-> 3. **Natural language to bexpr** — "targets not on port 5432 or 22" → agent constructs the filter
-> 4. **Session lifecycle** — authorize → list → read → cancel → confirm gone
-> 5. **Real 403** — agent hits PermissionDenied, reads the role, explains the fix
-> 6. **Connect through Boundary** — agent authorizes sessions and actually connects to SSH (hostname), PostgreSQL (SQL query), and web (curl /health) through the Boundary worker proxy
->
-> [Download the demo video](https://github.com/learhy/boundary-mcp/releases/download/full-demo/boundary-mcp-full-demo.mp4) (2.5 MB, 129s)
-
 ## Overview
 
 `boundary-mcp` is a standalone Go binary that bridges an MCP client and a Boundary controller's REST API (`/v1/`). It runs as a child process of the MCP client (stdio transport) and maintains a long-lived connection to one Boundary controller.
