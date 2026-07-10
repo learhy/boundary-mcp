@@ -4,9 +4,17 @@ An MCP (Model Context Protocol) server for HashiCorp Boundary. Exposes Boundary 
 
 ## Demo
 
-https://github.com/learhy/boundary-mcp/releases/download/demo-v1/boundary-mcp-connect-demo-v3.mp4
+https://github.com/learhy/boundary-mcp/releases/download/full-demo/boundary-mcp-full-demo.mp4
 
-> A real AI agent discovers Boundary targets, authorizes sessions through the MCP server, and connects through Boundary to SSH, PostgreSQL, and web targets — including a real bug and recovery. [Download the demo video](https://github.com/learhy/boundary-mcp/releases/download/demo-v1/boundary-mcp-connect-demo-v3.mp4) (4.5 MB, 92s).
+> **5-scenario demo** — A real AI agent (glm-5.2:cloud) uses boundary-mcp through Claude Code. No simulation: every tool call is real, including a live 403 PermissionDenied and the agent's diagnosis of the missing grant.
+>
+> 1. **Discover and connect** — check_connection, list_scopes, list_targets, read_target, authorize_session
+> 2. **Troubleshoot access** — "Why can't junior-dev connect?" → agent traces the permission chain, finds the missing grant
+> 3. **Natural language to bexpr** — "targets not on port 5432 or 22" → agent constructs the filter
+> 4. **Session lifecycle** — authorize → list → read → cancel → confirm gone
+> 5. **Real 403** — agent hits PermissionDenied, reads the role, explains the fix
+>
+> [Download the demo video](https://github.com/learhy/boundary-mcp/releases/download/full-demo/boundary-mcp-full-demo.mp4) (1.9 MB, 106s)
 
 ## Overview
 
