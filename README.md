@@ -2,6 +2,12 @@
 
 An MCP (Model Context Protocol) server for HashiCorp Boundary. Exposes Boundary cluster operations as MCP tools, enabling AI assistants (VS Code, Claude Desktop, Cursor) to query and manage Boundary resources through natural language.
 
+## Demo
+
+https://github.com/learhy/boundary-mcp/releases/download/demo-v1/boundary-mcp-connect-demo-v3.mp4
+
+> A real AI agent discovers Boundary targets, authorizes sessions through the MCP server, and connects through Boundary to SSH, PostgreSQL, and web targets — including a real bug and recovery. [Download the demo video](https://github.com/learhy/boundary-mcp/releases/download/demo-v1/boundary-mcp-connect-demo-v3.mp4) (4.5 MB, 92s).
+
 ## Overview
 
 `boundary-mcp` is a standalone Go binary that bridges an MCP client and a Boundary controller's REST API (`/v1/`). It runs as a child process of the MCP client (stdio transport) and maintains a long-lived connection to one Boundary controller.
