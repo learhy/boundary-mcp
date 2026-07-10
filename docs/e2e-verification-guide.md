@@ -749,3 +749,22 @@ kill %1  # or: pkill -f "boundary dev"
 # Remove temp files
 rm -f /tmp/boundary-setup.json
 ```
+
+---
+
+## Build Time
+
+The entire system was designed and built in a single session on July 9-10, 2026. The session ID timestamp records start at 23:59:52 UTC on July 9. Git commit timestamps record completion of each phase:
+
+| Milestone | UTC Timestamp | Elapsed |
+|-----------|---------------|---------|
+| Session start (began reading RFC) | 2026-07-09 23:59:52 | 0 min |
+| Initial implementation committed (35 tools, MCP protocol, all source) | 2026-07-10 00:18:06 | ~18 min |
+| Bug fixes from e2e testing (scope_id, host_catalog_id, auth response) | 2026-07-10 01:04:30 | ~65 min |
+| E2E verification guide committed | 2026-07-10 01:09:33 | ~70 min |
+
+**Total wall-clock time from reading the RFC to a fully tested, documented, and pushed system: approximately 70 minutes.**
+
+Of that, roughly 18 minutes was writing the initial codebase (19 Go source files, 2,663 lines, 35 MCP tools, JSON-RPC protocol from scratch, zero external dependencies). The remaining ~52 minutes was setting up `boundary dev`, discovering and fixing three real API integration bugs through end-to-end testing, and writing this document.
+
+No code was pre-written or templated. The RFC was read in full, the repo was created with `gh repo create`, and every file was written from scratch in the session.
