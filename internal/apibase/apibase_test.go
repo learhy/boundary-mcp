@@ -62,7 +62,7 @@ func TestBuildListQuery(t *testing.T) {
 				PageSize:  100,
 				Filter:    `name == "test"`,
 			},
-			expect: `/v1/targets?filter=name+%3D%3D+%22test%22&page_size=100&recursive=true`,
+			expect: `/v1/targets?filter=name+%3D%3D+%22test%22&page_size=100&recursive=true&scope_id=o_123`,
 		},
 	}
 

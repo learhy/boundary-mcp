@@ -60,14 +60,7 @@ func HostTools(c *bclient.Client) []*mcp.ToolRegistration {
 				if err != nil {
 					return nil, err
 				}
-				// Check if host_catalog_id was passed
-				var extra struct {
-					HostCatalogID string `json:"host_catalog_id"`
-				}
-				json.Unmarshal(args, &extra)
-				if extra.HostCatalogID != "" {
-					return apibase.ExecuteList(context.Background(), c, "/v1/host-catalogs/"+extra.HostCatalogID+"/host-sets", p)
-				}
+				// host_catalog_id is already parsed into p.HostCatalogID via ListParams
 				return apibase.ExecuteList(context.Background(), c, "/v1/host-sets", p)
 			},
 		),
@@ -101,13 +94,7 @@ func HostTools(c *bclient.Client) []*mcp.ToolRegistration {
 				if err != nil {
 					return nil, err
 				}
-				var extra struct {
-					HostCatalogID string `json:"host_catalog_id"`
-				}
-				json.Unmarshal(args, &extra)
-				if extra.HostCatalogID != "" {
-					return apibase.ExecuteList(context.Background(), c, "/v1/host-catalogs/"+extra.HostCatalogID+"/hosts", p)
-				}
+				// host_catalog_id is already parsed into p.HostCatalogID via ListParams
 				return apibase.ExecuteList(context.Background(), c, "/v1/hosts", p)
 			},
 		),

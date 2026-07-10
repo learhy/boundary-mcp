@@ -13,11 +13,13 @@ import (
 
 // ListParams holds common parameters for list operations.
 type ListParams struct {
-	ScopeID   string `json:"scope_id"`
-	Recursive bool   `json:"recursive"`
-	Filter    string `json:"filter"`
-	PageSize  int    `json:"page_size"`
-	ListToken string `json:"list_token"`
+	ScopeID            string `json:"scope_id"`
+	Recursive          bool   `json:"recursive"`
+	Filter             string `json:"filter"`
+	PageSize           int    `json:"page_size"`
+	ListToken          string `json:"list_token"`
+	HostCatalogID      string `json:"host_catalog_id"`
+	CredentialStoreID  string `json:"credential_store_id"`
 }
 
 // ReadParams holds common parameters for read operations.
@@ -66,6 +68,15 @@ func ParseReadParams(args json.RawMessage) (*ReadParams, error) {
 // Returns the full path with query parameters.
 func BuildListQuery(basePath string, p *ListParams) string {
 	q := url.Values{}
+	if p.ScopeID != "" {
+		q.Set("scope_id", p.ScopeID)
+	}
+	if p.HostCatalogID != "" {
+		q.Set("host_catalog_id", p.HostCatalogID)
+	}
+	if p.CredentialStoreID != "" {
+		q.Set("credential_store_id", p.CredentialStoreID)
+	}
 	if p.Filter != "" {
 		q.Set("filter", p.Filter)
 	}
@@ -111,10 +122,19 @@ func HandleListResponse(body json.RawMessage, statusCode int, err error) (*mcp.T
 		ListToken    *string         `json:"list_token"`
 		RemovedIDs   json.RawMessage `json:"removed_ids"`
 	}
-	if json.Unmarshal(body, &fullResp) == nil && fullResp.Items != nil {
-		result.Items = fullResp.Items
+	if json.Unmarshal(body, &fullResp) == nil {
+		// If items field exists (even if null), use the structured response
+		if fullResp.Items != nil {
+			result.Items = fullResp.Items
+		} else {
+			// items is null — empty result set
+			result.Items = json.RawMessage("[]")
+		}
 		result.EstItemCount = fullResp.EstItemCount
 		result.ResponseType = fullResp.ResponseType
+		if result.ResponseType == "" {
+			result.ResponseType = "complete"
+		}
 		result.ListToken = fullResp.ListToken
 		result.RemovedIDs = fullResp.RemovedIDs
 	} else {

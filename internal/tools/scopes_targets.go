@@ -29,6 +29,7 @@ func ScopeTools(c *bclient.Client) []*mcp.ToolRegistration {
 				if p.ScopeID == "" {
 					p.ScopeID = "global"
 				}
+				// For scopes, the API path is /v1/scopes and scope_id is the parent
 				return apibase.ExecuteList(context.Background(), c, "/v1/scopes", p)
 			},
 		),

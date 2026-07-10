@@ -116,13 +116,7 @@ func CredentialTools(c *bclient.Client) []*mcp.ToolRegistration {
 				if err != nil {
 					return nil, err
 				}
-				var extra struct {
-					CredentialStoreID string `json:"credential_store_id"`
-				}
-				json.Unmarshal(args, &extra)
-				if extra.CredentialStoreID != "" {
-					return apibase.ExecuteList(context.Background(), c, "/v1/credential-stores/"+extra.CredentialStoreID+"/credential-libraries", p)
-				}
+				// credential_store_id is parsed into p.CredentialStoreID via ListParams
 				return apibase.ExecuteList(context.Background(), c, "/v1/credential-libraries", p)
 			},
 		),
