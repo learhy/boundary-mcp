@@ -7,7 +7,7 @@ import (
 	"github.com/learhy/boundary-mcp/internal/mcp"
 )
 
-// AllTools returns all Phase 1 tool registrations (35 tools total).
+// AllTools returns all tool registrations (Phase 1 read tools + Phase 2 write/connect tools).
 func AllTools(c *bclient.Client, cfg *config.Config, server *mcp.Server, pm *ProxyManager) []*mcp.ToolRegistration {
 	var all []*mcp.ToolRegistration
 	all = append(all, ScopeTools(c)...)          // 2: list_scopes, read_scope
@@ -21,5 +21,9 @@ func AllTools(c *bclient.Client, cfg *config.Config, server *mcp.Server, pm *Pro
 	all = append(all, CredentialTools(c)...)     // 4: credential stores (list+read), credential libraries (list+read)
 	all = append(all, RecordingTools(c)...)      // 2: session recordings (list+read)
 	all = append(all, ServerInfoTools(c, cfg, server)...) // 2: check_connection, server_info
+	// Phase 2: write tools (create targets, hosts, credentials, etc.)
+	all = append(all, WriteTools(c)...)           // 10: create/update for targets, hosts, credentials
+	// Phase 2: connect tools (run commands on targets via boundary CLI)
+	all = append(all, ConnectTools(c)...)        // 3: connect_ssh, connect_tcp, connect_ssh_interactive
 	return all
 }
